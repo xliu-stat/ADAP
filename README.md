@@ -24,7 +24,6 @@ Below is a summary of the generated data that include 15,000 patient records ove
 ```{r}
 load("OUD_synthetic.rda")
 dim(OUD_synthetic)
-table(OUD_synthetic$OUD_status, OUD_synthetic$Site)
 
 posBysite <- 
   cbind(apply(OUD_synthetic[OUD_synthetic$Site==1, -c(1,2)], 2, mean),
@@ -36,6 +35,52 @@ posBysite <-
 rownames(posBysite) <- colnames(OUD_synthetic)[-c(1:2)]
 colnames(posBysite) <- c("site 1", "site 2", "site 3", "site 4", "site 5")
 knitr::kable(round(posBysite*100, 2), booktabs = TRUE, caption = 'Site-specific Characteristics (%)')
+# Table: Site-specific Characteristics (%)
+# 
+#   |                                          | site 1| site 2| site 3| site 4| site 5|
+#   |:-----------------------------------------|------:|------:|------:|------:|------:|
+#   |alcohol_related_disorders                 |   1.77|   2.43|   2.67|   2.73|   2.23|
+#   |depression                                |   7.97|   8.60|  11.97|  11.50|  10.93|
+#   |anxiety                                   |  11.03|  13.10|  14.80|  14.30|  10.37|
+#   |sleep_disorder                            |   4.47|   3.17|   7.23|   4.37|   6.17|
+#   |rheumatoid_arthritis                      |   2.10|   1.47|   2.17|   1.47|   1.77|
+#   |pain                                      |  14.17|  22.43|  11.50|  16.97|  13.60|
+#   |cannabis_related_disorder                 |   1.20|   3.27|   2.30|   1.93|   1.83|
+#   |sedative_related_disorder                 |   0.23|   0.50|   0.27|   0.07|   0.40|
+#   |cocaine_related_disorder                  |   0.60|   2.90|   1.70|   1.17|   2.80|
+#   |nicotine_related_disorder                 |  11.27|  17.77|  15.10|  22.13|  11.83|
+#   |other_psychoactive_disorder               |   2.33|   1.90|   1.53|   2.47|   2.43|
+#   |CCI_Myocardial_infarction                 |   2.70|   3.43|   3.00|   1.83|   2.33|
+#   |CCI_Congestive_heart_failure              |   4.30|   3.73|   5.20|   4.87|   4.53|
+#   |CCI_Peripheral_vascular_disease           |   3.77|   3.23|   5.13|   4.60|   5.47|
+#   |CCI_Cerebrovascular_disease               |   2.90|   3.00|   4.67|   4.33|   4.70|
+#   |CCI_Dementia                              |   0.97|   0.63|   1.00|   0.63|   1.17|
+#   |CCI_Chronic_pulmonary_disease             |  14.97|  16.07|  16.17|  16.73|  13.53|
+#   |CCI_Rheumatic_disease                     |   3.20|   2.07|   2.87|   2.27|   3.00|
+#   |CCI_Peptic_ulcer_disease                  |   1.47|   1.00|   0.67|   0.97|   0.73|
+#   |CCI_Mild_liver_disease                    |   4.57|   4.43|   2.90|   6.17|   5.37|
+#   |CCI_Diabetes_without_chronic_complication |  15.27|  12.37|  13.87|  13.60|  15.83|
+#   |CCI_Diabetes_with_chronic_complication    |   3.20|   2.43|   2.87|   2.97|   5.27|
+#   |CCI_Hemiplegia_or_paraplegia              |   0.73|   0.97|   1.23|   1.63|   2.73|
+#   |CCI_Renal_disease                         |   4.73|   3.73|   4.40|   3.30|   4.83|
+#   |CCI_Any_malignancy                        |   0.63|   1.40|   0.40|   1.27|   0.13|
+#   |CCI_Moderate_or_severe_liver_disease      |   0.63|   0.53|   0.07|   0.73|   1.07|
+#   |CCI_AIDS_HIV                              |   0.30|   0.67|   0.83|   0.77|   3.00|
+#   |insomia                                   |   0.50|   0.50|   1.37|   1.60|   1.57|
+#   |sleep_apnea                               |   4.23|   2.90|   6.43|   3.93|   3.17|
+#   |bmi_1                                     |   3.17|   3.33|   4.13|   4.10|   2.60|
+#   |bmi_2                                     |  29.60|  26.23|  27.90|  29.27|  27.97|
+#   |bmi_3                                     |  41.83|  45.53|  42.53|  39.37|  42.13|
+#   |smoke_1                                   |   4.73|   9.93|  24.17|  29.33|   0.17|
+#   |smoke_2                                   |  88.90|  89.30|  52.97|  41.63|  99.53|
+#   |race_1                                    |  52.73|  50.17|  63.17|  66.77|  13.47|
+#   |race_2                                    |   1.07|   1.50|   4.60|   1.00|   4.20|
+#   |insu_1                                    |  24.20|  23.53|  34.10|  43.57|  45.30|
+#   |insu_2                                    |  58.93|   1.90|   1.93|  14.10|  21.03|
+#   |age_1                                     |   3.17|   2.80|   3.77|   6.30|   2.30|
+#   |age_2                                     |  39.03|  50.83|  32.67|  32.97|  25.83|
+#   |age_3                                     |  41.47|  35.10|  42.67|  47.63|  53.97|
+#   |gender_1                                  |  64.10|  71.17|  63.87|  59.53|  58.03|
 ```
 
 Next, let us fit the model:
@@ -47,75 +92,111 @@ Xall <- as.matrix(OUD_synthetic[, -c(1,2)])
 set.seed(100)
 library(glmnet)
 source("functions.r")
-fit.res <- compare.methods(Xall, Yall, site, local_site = c(4,1), norder = NULL) 
+fit.res <- compare.methods(Xall, Yall, site, local_site = c(1,2), norder = NULL) 
 res_mat <- cbind(fit.res$estimation_local, fit.res$estimation_ave, 
                  fit.res$estimation_odal1_5cv, fit.res$estimation_odal2_5cv,
                  fit.res$estimation_pooled)
 colnames(res_mat) <- c("Local", "Average", "ADAP1", "ADAP2", "Pooled")
 # display fitting results
 knitr::kable(round(res_mat, 2), booktabs = TRUE, caption = 'Fitting Results')
+# Table: Fitting Results
+# 
+#   |                                          | Local| Average| ADAP1| ADAP2| Pooled|
+#   |:-----------------------------------------|-----:|-------:|-----:|-----:|------:|
+#   |(Intercept)                               | -3.12|   -2.53| -3.12| -2.84|  -2.96|
+#   |alcohol_related_disorders                 |  0.05|   -0.11| -0.05| -0.05|  -0.12|
+#   |depression                                |  0.00|    0.03|  0.07|  0.07|   0.08|
+#   |anxiety                                   |  0.51|    0.41|  0.44|  0.45|   0.46|
+#   |sleep_disorder                            |  0.00|   -0.20| -0.26| -0.24|  -0.27|
+#   |rheumatoid_arthritis                      | -0.11|    0.06|  0.00|  0.00|   0.02|
+#   |pain                                      |  0.31|    0.28|  0.30|  0.30|   0.31|
+#   |cannabis_related_disorder                 |  0.46|    0.53|  0.60|  0.58|   0.66|
+#   |sedative_related_disorder                 |  0.13|    0.56|  0.29|  0.41|   0.97|
+#   |cocaine_related_disorder                  |  0.66|    0.62|  0.53|  0.61|   0.70|
+#   |nicotine_related_disorder                 |  0.42|    0.37|  0.39|  0.40|   0.41|
+#   |other_psychoactive_disorder               |  0.29|    0.71|  0.78|  0.76|   0.84|
+#   |CCI_Myocardial_infarction                 | -0.14|   -0.03|  0.00| -0.01|  -0.08|
+#   |CCI_Congestive_heart_failure              |  0.21|    0.23|  0.28|  0.29|   0.32|
+#   |CCI_Peripheral_vascular_disease           |  0.00|   -0.17| -0.21| -0.20|  -0.24|
+#   |CCI_Cerebrovascular_disease               | -0.14|   -0.18| -0.19| -0.19|  -0.24|
+#   |CCI_Dementia                              | -1.77|   -1.31| -1.29| -1.26|  -1.69|
+#   |CCI_Chronic_pulmonary_disease             |  0.01|    0.00|  0.00|  0.00|   0.01|
+#   |CCI_Rheumatic_disease                     |  0.58|    0.22|  0.25|  0.25|   0.30|
+#   |CCI_Peptic_ulcer_disease                  |  0.00|    0.28|  0.19|  0.11|   0.29|
+#   |CCI_Mild_liver_disease                    |  0.62|    0.24|  0.21|  0.22|   0.25|
+#   |CCI_Diabetes_without_chronic_complication |  0.00|    0.09|  0.11|  0.11|   0.12|
+#   |CCI_Diabetes_with_chronic_complication    |  0.24|   -0.10|  0.00|  0.00|  -0.02|
+#   |CCI_Hemiplegia_or_paraplegia              | -0.23|   -0.04|  0.00|  0.00|   0.08|
+#   |CCI_Renal_disease                         |  0.44|    0.35|  0.40|  0.40|   0.44|
+#   |CCI_Any_malignancy                        | -0.18|   -0.01| -0.02| -0.01|  -0.25|
+#   |CCI_Moderate_or_severe_liver_disease      | -0.20|    0.15|  0.00|  0.00|   0.05|
+#   |CCI_AIDS_HIV                              |  0.99|    0.09|  0.00|  0.00|  -0.03|
+#   |insomia                                   |  0.88|   -0.11| -0.14| -0.10|  -0.28|
+#   |sleep_apnea                               | -0.34|   -0.07| -0.03| -0.03|  -0.06|
+#   |bmi_1                                     |  0.12|    0.18|  0.20|  0.19|   0.24|
+#   |bmi_2                                     | -0.01|   -0.01| -0.03| -0.03|  -0.03|
+#   |bmi_3                                     | -0.09|   -0.10| -0.14| -0.14|  -0.14|
+#   |smoke_1                                   |  0.67|    0.34|  0.76|  0.56|   0.61|
+#   |smoke_2                                   |  0.74|    0.40|  0.86|  0.64|   0.68|
+#   |race_1                                    |  1.01|    0.94|  0.94|  0.96|   0.98|
+#   |race_2                                    |  0.39|    0.03|  0.14|  0.09|   0.18|
+#   |insu_1                                    |  1.14|    1.09|  1.22|  1.14|   1.17|
+#   |insu_2                                    |  0.40|    0.36|  0.48|  0.37|   0.39|
+#   |age_1                                     | -0.52|   -0.81| -0.95| -0.91|  -0.97|
+#   |age_2                                     |  0.73|    0.66|  0.72|  0.73|   0.77|
+#   |age_3                                     |  0.70|    0.68|  0.75|  0.76|   0.80|
+#   |gender_1                                  | -0.25|   -0.28| -0.33| -0.33|  -0.32|
+
 
 # approximation performance of each method to the pooled estimator
 dif_res <- res_mat[ ,1:4] - fit.res$estimation_pooled%*%t(rep(1,4))
 round(apply(dif_res^2, 2, sum),2)
+# Local Average   ADAP1   ADAP2 
+# 4.61    0.98    0.89    0.72
 ```
 
 To visualize the results:
 ```{r}
-rela.bias.local <- abs((fit.part1$estimation_local - fit.part1$estimation_pooled)/fit.part1$estimation_pooled)
-rela.bias.ave <- abs((fit.part1$estimation_ave - fit.part1$estimation_pooled)/fit.part1$estimation_pooled)
-rela.bias.odal1 <- abs((fit.part1$estimation_odal1_5cv - fit.part1$estimation_pooled)/fit.part1$estimation_pooled)
-rela.bias.odal2 <- abs((fit.part1$estimation_odal2_5cv - fit.part1$estimation_pooled)/fit.part1$estimation_pooled)
+rela.bias.local <- abs((fit.res$estimation_local - fit.res$estimation_pooled)/fit.res$estimation_pooled)
+rela.bias.ave <- abs((fit.res$estimation_ave - fit.res$estimation_pooled)/fit.res$estimation_pooled)
+rela.bias.odal1 <- abs((fit.res$estimation_odal1_5cv - fit.res$estimation_pooled)/fit.res$estimation_pooled)
+rela.bias.odal2 <- abs((fit.res$estimation_odal2_5cv - fit.res$estimation_pooled)/fit.res$estimation_pooled)
 
-summary(rela.bias.local[-which(fit.part1$estimation_pooled == 0)])
-
-summary(rela.bias.ave[-which(fit.part1$estimation_pooled == 0)])
-summary(rela.bias.odal1[-which(fit.part1$estimation_pooled == 0)])
-summary(rela.bias.odal2[-which(fit.part1$estimation_pooled == 0)])
-
-res_mat <- cbind(rela.bias.local, rela.bias.ave, rela.bias.odal1, rela.bias.odal2)
-colnames(res_mat) <- c("Local", "Average", "ADAP1", "ADAP2")
-boxplot(res_mat[-which(fit.part1$estimation_pooled == 0),]*(res_mat[-which(fit.part1$estimation_pooled == 0),]<2))
+res_mat_relative <- cbind(rela.bias.local, rela.bias.ave, rela.bias.odal1, rela.bias.odal2)
+colnames(res_mat_relative) <- c("Local", "Average", "ADAP1", "ADAP2")
 
 
-# all
-tseq <- 1:40 #downsize3: 1:42
-rec_all <- res_mat[-which(fit.part1$estimation_pooled == 0),]
-rec_all0 <- melt(rec_all)
-rec_all0$size <- rep(tseq, 4)
-rec_all0$Method <- rec_all0$Var2
-
-# no local
-tseq <- 1:40 #downsize3: 1:42
-rec_all <- res_mat[-which(fit.part1$estimation_pooled == 0),-1]
-rec_all0 <- melt(rec_all)
-rec_all0$size <- rep(tseq, 3)
-rec_all0$Method <- rec_all0$Var2
-
-# all + pooled
-tseq <- 1:42
-rec_all <- res_part1[-1,]
-colnames(rec_all) <- c("Local", "Average", "ADAP1", "ADAP2", "Pooled")
+# visualize the estimates
+rec_all <- res_mat[-1,]
+tseq <- 1:dim(rec_all)[1]
 rec_all <- rec_all[order(rec_all[,5], decreasing = T),]
 rec_all <- melt(rec_all)
 rec_all$size <- rep(tseq, 5)
 rec_all$Method <- rec_all$Var2
 
 
-plot_all <- ggplot(rec_all, aes(x=size, y=value)) + 
+ggplot(rec_all, aes(x=size, y=value)) + 
   geom_line(aes(colour=Method), size =0.5) +
   geom_point(aes(shape=Method, colour=Method)) + 
   scale_x_continuous("Covariates", breaks = tseq[c(5, 10, 15, 20, 25, 30, 35, 40)]) + 
   scale_colour_manual(values=c(Local="steelblue1", Average="turquoise", ADAP1="slateblue1",
                                ADAP2="rosybrown1", Pooled="tomato")) +
   ylab("Log Odds Ratio") +
-  #scale_y_continuous("Absolute Relative Estimation Bias", breaks = c(0, 1, 5, 10, 15)) + 
   theme_bw() +
   theme(axis.title = element_text(size=14,face="bold"), axis.text = element_text(size=10)) +
-  geom_hline(yintercept=0, linetype="dashed", color = "gray") #+ geom_hline(yintercept=1, linetype="dashed", color = "gray")  
+  geom_hline(yintercept=0, linetype="dashed", color = "gray") 
 
 
-plot_part <- ggplot(rec_all0, aes(x=size, y=value)) + 
+# visualize the relative estimation error (global estimator as the reference)
+rec_all <- res_mat_relative[,-1]
+tseq <- 1:dim(rec_all)[1]
+rec_all0 <- melt(rec_all)
+rec_all0$size <- rep(tseq, 3)
+rec_all0$Method <- rec_all0$Var2
+
+
+
+ggplot(rec_all0, aes(x=size, y=value)) + 
   geom_line(aes(colour=Method), size =0.5) +
   geom_point(aes(shape=Method, colour=Method)) + 
   scale_y_continuous("Relative Estimation Bias", breaks = c(0, 0.2, 0.5, 1, 2, 3, 4)) + 
@@ -126,108 +207,5 @@ plot_part <- ggplot(rec_all0, aes(x=size, y=value)) +
   theme(axis.title = element_text(size=14,face="bold"), axis.text = element_text(size=10)) +
   geom_hline(yintercept=0, linetype="dashed", color = "gray") + geom_hline(yintercept=0.2, linetype="dashed", color = "gray") +
   geom_hline(yintercept=0.5, linetype="dashed", color = "gray")
+
 ```
-
-
-
-The random-splitting procedure to measure prediction preformance is:
-```{r}
-library(glmnet)
-library(ROCR)
-source("/home/xiaokang/functions.r")
-
-n.rep <- 50
-auc_all <- array(NA, dim = c(9, n.rep, 5))  
-set.seed(100)
-for (i in 1:9){
-  for (j in 1:n.rep){
-    train.valid.flag <- 0
-    while (train.valid.flag < 1) {
-      index_train <- NULL
-      index_test <- NULL
-      for (k in 1:5){
-        sel0 <- sample(which(site == k & Yall == 0), i*200, replace = FALSE)
-        sel1 <- sample(which(site == k & Yall == 1), i*100, replace = FALSE)
-        index_test <- c(index_test, sel0, sel1)
-      }
-      index_train <- setdiff(1:length(site), index_test)
-      
-      site_train <- site[index_train]
-      Yall_train <- Yall[index_train]
-      Xall_train <- Xall[index_train,]
-      
-      posBysite <- matrix(NA, nrow = 42, ncol = 5)
-      posBysite[,1] <- apply(OUD_analy[intersect(index_train, OUD_analy$site == "AVH"), -var.delete], 2, sum)
-      posBysite[,2] <- apply(OUD_analy[intersect(index_train, OUD_analy$site == "ORL"), -var.delete], 2, sum)
-      posBysite[,3] <- apply(OUD_analy[intersect(index_train, OUD_analy$site == "TMH"), -var.delete], 2, sum)
-      posBysite[,4] <- apply(OUD_analy[intersect(index_train, OUD_analy$site == "UFH"), -var.delete], 2, sum)
-      posBysite[,5] <- apply(OUD_analy[intersect(index_train, OUD_analy$site == "UMI"), -var.delete], 2, sum)
-      train.valid.flag <- all(posBysite > 1)
-      
-      site_test <- site[index_test]
-      Yall_test <- Yall[index_test]
-      Xall_test <- Xall[index_test,]
-    }
-    
-    tryCatch({
-      fit.train <- compare.methods(as.matrix(OUD_analy[index_train, -var.delete]), Yall_train, site_train, local_site = c(4,1), norder = NULL) 
-      
-      pred.local <- as.matrix(cbind(1, OUD_analy[index_test, -var.delete]))%*%fit.train$estimation_local
-      pred.ave <- as.matrix(cbind(1, OUD_analy[index_test, -var.delete]))%*%fit.train$estimation_ave
-      pred.odal1 <- as.matrix(cbind(1, OUD_analy[index_test, -var.delete]))%*%fit.train$estimation_odal1_5cv
-      pred.odal2 <- as.matrix(cbind(1, OUD_analy[index_test, -var.delete]))%*%fit.train$estimation_odal2_5cv
-      pred.pooled <- as.matrix(cbind(1, OUD_analy[index_test, -var.delete]))%*%fit.train$estimation_pooled
-      
-      
-      pred <- prediction(pred.local, Yall_test)
-      auc.tmp <- performance(pred,"auc")
-      auc_all[i, j, 1] <- as.numeric(auc.tmp@y.values)
-      
-      pred <- prediction(pred.ave, Yall_test)
-      auc.tmp <- performance(pred,"auc")
-      auc_all[i, j, 2] <- as.numeric(auc.tmp@y.values)
-      
-      pred <- prediction(pred.odal1, Yall_test)
-      auc.tmp <- performance(pred,"auc")
-      auc_all[i, j, 3] <- as.numeric(auc.tmp@y.values)
-      
-      pred <- prediction(pred.odal2, Yall_test)
-      auc.tmp <- performance(pred,"auc")
-      auc_all[i, j, 4] <- as.numeric(auc.tmp@y.values)
-      
-      pred <- prediction(pred.pooled, Yall_test)
-      auc.tmp <- performance(pred,"auc")
-      auc_all[i, j, 5] <- as.numeric(auc.tmp@y.values)
-    }, error=function(e) NA)
-  }
-}
-
-auc_mean <- matrix(NA, nrow = 9, ncol = 5)
-for (i in 1:9){
-  auc_mean[i,] <- apply(auc_all[i,,], 2, mean, na.rm=T)
-}
-colnames(auc_mean) <- c("Local", "Ave", "ADAP1", "ADAP2", "Global")
-
-tseq <- 1:9
-rec_all <- auc_mean
-rec_all0 <- melt(rec_all)
-rec_all0$size <- rep(tseq, 5)
-rec_all0$Method <- rec_all0$Var2
-
-
-plot_all <- ggplot(rec_all0, aes(x=size, y=value)) + 
-  geom_line(aes(colour=Method), size =0.5) +
-  geom_point(aes(shape=Method, colour=Method)) + 
-  #scale_x_discrete("Number of Sites", breaks = c(5,10,20,30,40,50)) + 
-  scale_x_continuous("Test Size Index", breaks=tseq) + 
-  # scale_colour_manual(values=c(Local="#000066", Ave="#663399", ODALLA1="#339999",
-  #                              ODALLA2="#CC0033", Global="#FF6600")) +
-  scale_colour_manual(values=c(Local="grey60", Ave="grey40", ADAP1="#339999",
-                               ADAP2="#CC0033", Global="#663399")) +
-  ylab("AUC") +
-  theme_bw() +
-  theme(axis.title = element_text(size=14,face="bold"), axis.text = element_text(size=10))
-```
-
-
-
