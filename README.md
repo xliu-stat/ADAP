@@ -165,6 +165,8 @@ rela.bias.odal2 <- abs((fit.res$estimation_odal2_5cv - fit.res$estimation_pooled
 res_mat_relative <- cbind(rela.bias.local, rela.bias.ave, rela.bias.odal1, rela.bias.odal2)
 colnames(res_mat_relative) <- c("Local", "Average", "ADAP1", "ADAP2")
 
+library(reshape2)
+library(ggplot2)
 
 # visualize the estimates
 rec_all <- res_mat[-1,]
