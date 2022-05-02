@@ -187,8 +187,10 @@ ggplot(rec_all, aes(x=size, y=value)) +
   theme_bw() +
   theme(axis.title = element_text(size=14,face="bold"), axis.text = element_text(size=10)) +
   geom_hline(yintercept=0, linetype="dashed", color = "gray") 
+```
+![](Fig1.pdf)
 
-
+```{r}
 # visualize the relative estimation error (global estimator as the reference)
 rec_all <- res_mat_relative[,-1]
 tseq <- 1:dim(rec_all)[1]
@@ -209,5 +211,5 @@ ggplot(rec_all0, aes(x=size, y=value)) +
   theme(axis.title = element_text(size=14,face="bold"), axis.text = element_text(size=10)) +
   geom_hline(yintercept=0, linetype="dashed", color = "gray") + geom_hline(yintercept=0.2, linetype="dashed", color = "gray") +
   geom_hline(yintercept=0.5, linetype="dashed", color = "gray")
-
 ```
+![](Fig2.pdf)
