@@ -188,7 +188,7 @@ ggplot(rec_all, aes(x=size, y=value)) +
   theme(axis.title = element_text(size=14,face="bold"), axis.text = element_text(size=10)) +
   geom_hline(yintercept=0, linetype="dashed", color = "gray") 
 ```
-![](Fig1.pdf)
+![](Fig1.png)
 
 ```{r}
 # visualize the relative estimation error (global estimator as the reference)
@@ -212,4 +212,4 @@ ggplot(rec_all0, aes(x=size, y=value)) +
   geom_hline(yintercept=0, linetype="dashed", color = "gray") + geom_hline(yintercept=0.2, linetype="dashed", color = "gray") +
   geom_hline(yintercept=0.5, linetype="dashed", color = "gray")
 ```
-![](Fig2.pdf)
+![](Fig2.png)
